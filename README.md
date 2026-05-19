@@ -1,6 +1,6 @@
 # Ayat Database Project - Ticket Handling System
 
-A full-stack, role-based ticket management system designed to demonstrate robust client-server architecture, where complex data mutation and business logic are securely encapsulated within PostgreSQL Stored Procedures.
+A full-stack, role-based ticket management system designed to demonstrate robust client-server architecture, where complex data mutation and business logic are securely encapsulated within SQL Stored Procedures.
 
 ## 🎯 Project Goals
 1. **Database-Driven Business Logic**: Shift core data mutations (creating tickets, assigning employees, changing statuses, adding comments) strictly into the database layer using SQL Stored Procedures to ensure data integrity and security.
@@ -10,7 +10,7 @@ A full-stack, role-based ticket management system designed to demonstrate robust
 ## ✨ Key Features
 - **User Portal**: Users can submit new support tickets, track the status of their ongoing issues, and communicate with support staff via threaded comments.
 - **Employee Dashboard**: Employees can view a queue of unassigned tickets, assign tickets to themselves, update ticket resolutions (In Progress, Completed, Closed), and reply to users.
-- **Database-First Approach**: The Node.js backend serves primarily as a lightweight bridge; the heavy lifting is done via custom PostgreSQL procedures (`sp_create_ticket`, `sp_assign_ticket`, `sp_add_comment`, etc.) and data aggregation functions.
+- **Database-First Approach**: The Node.js backend serves primarily as a lightweight bridge; the heavy lifting is done via custom SQL procedures (`sp_create_ticket`, `sp_assign_ticket`, `sp_add_comment`, etc.) and data aggregation functions.
 - **Live Database Schema Viewer**: An interactive UI tool built into the dashboard that visually maps out the `users`, `tickets`, and `ticket_comments` tables, their constraints, foreign key relationships, and even displays the raw `database.sql` code.
 - **State Synchronization**: The frontend seamlessly stays up-to-date with the database via polling mechanisms and global Zustand state management.
 
@@ -30,8 +30,51 @@ A full-stack, role-based ticket management system designed to demonstrate robust
 - **CORS & Environment**: `cors`, `dotenv`
 
 ### Database
-- **Engine**: PostgreSQL
+- **Engine**: SQL
 - **Architecture**: Relational mapping with cascading foreign keys and PL/pgSQL Stored Procedures.
+
+---
+
+## 📊 Database Entity-Relationship Diagram
+
+Below is the visual representation of the project's database schema, detailing the entities, their attributes, and the relationships between them.
+
+```mermaid
+erDiagram
+    users {
+        int id PK
+        varchar(100) name
+        varchar(50) role "User or Employee"
+        timestamp created_at
+    }
+
+    tickets {
+        varchar(20) id PK "e.g. TCK-1001"
+        varchar(255) title
+        text description
+        varchar(100) category
+        varchar(50) priority
+        varchar(50) status
+        int created_by_id FK "References users.id"
+        int assigned_employee_id FK "References users.id"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ticket_comments {
+        int id PK
+        varchar(20) ticket_id FK "References tickets.id"
+        text message
+        int created_by_id FK "References users.id"
+        timestamp created_at
+    }
+
+    %% Relationships
+    users ||--o{ tickets : "creates (created_by_id)"
+    users ||--o{ tickets : "is assigned to (assigned_employee_id)"
+    tickets ||--o{ ticket_comments : "has comments"
+    users ||--o{ ticket_comments : "writes (created_by_id)"
+```
 
 ---
 
@@ -67,8 +110,8 @@ A full-stack, role-based ticket management system designed to demonstrate robust
 ## 🚀 Setup & Installation
 
 ### 1. Database Initialization
-1. Ensure you have a running PostgreSQL instance (Local or Cloud like Supabase/Neon).
-2. Execute the entire contents of `database.sql` against your PostgreSQL database. This will:
+1. Ensure you have a running SQL instance (Local or Cloud like Supabase/Neon).
+2. Execute the entire contents of `database.sql` against your SQL database. This will:
    - Create the `users`, `tickets`, and `ticket_comments` tables.
    - Seed the initial Users and Employees.
    - Deploy the required Stored Procedures and Functions.

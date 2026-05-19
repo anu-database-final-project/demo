@@ -92,6 +92,17 @@ app.post('/api/tickets/:id/comments', async (req, res) => {
   }
 });
 
+// --- SPA Routing Fallback ---
+// Serve frontend static files if the Express server is acting as the host
+const path = require('path');
+const distPath = path.join(__dirname, '../dist');
+app.use(express.static(distPath));
+
+// For any other GET request not caught by the API, send back the React index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

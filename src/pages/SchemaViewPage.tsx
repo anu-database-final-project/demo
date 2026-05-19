@@ -70,6 +70,28 @@ const TableCard = ({ table, onClick }: { table: TableDef, onClick: () => void })
   </div>
 );
 
+// Parse SQL content into sections based on top-level comments
+const parseSqlSnippets = (content: string) => {
+  const chunks = content.split(/^-- /m);
+  const snippets: { title: string; code: string }[] = [];
+  
+  for (const chunk of chunks) {
+    if (!chunk.trim()) continue;
+    const newlineIndex = chunk.indexOf('\n');
+    if (newlineIndex === -1) continue;
+    
+    const title = chunk.substring(0, newlineIndex).trim();
+    const code = chunk.substring(newlineIndex + 1).trim();
+    
+    if (code) {
+      snippets.push({ title, code });
+    }
+  }
+  return snippets;
+};
+
+const sqlSnippetsList = parseSqlSnippets(sqlContent);
+
 export default function SchemaViewPage() {
   const [selectedTable, setSelectedTable] = useState<TableDef | null>(null);
   const [showSqlModal, setShowSqlModal] = useState(false);
@@ -267,10 +289,20 @@ export default function SchemaViewPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="overflow-y-auto p-6 flex-1 bg-gray-900">
-              <pre className="text-gray-300 font-mono text-sm leading-relaxed whitespace-pre-wrap break-words">
-                <code>{sqlContent}</code>
-              </pre>
+            <div className="overflow-y-auto p-6 flex-1 bg-gray-900 space-y-6">
+              {sqlSnippetsList.map((snippet, idx) => (
+                <div key={idx} className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                  <div className="bg-gray-950 px-4 py-2 border-b border-gray-700 text-gray-300 font-medium text-sm flex items-center gap-2">
+                    <Code className="w-4 h-4 text-blue-400" />
+                    {snippet.title}
+                  </div>
+                  <div className="p-4 overflow-x-auto">
+                    <pre className="text-gray-300 font-mono text-sm leading-relaxed whitespace-pre-wrap break-words">
+                      <code>{snippet.code}</code>
+                    </pre>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

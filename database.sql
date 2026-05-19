@@ -1,3 +1,14 @@
+-- Clean Reset: Drop existing tables and functions
+DROP FUNCTION IF EXISTS fn_get_all_tickets();
+DROP PROCEDURE IF EXISTS sp_add_comment(VARCHAR, TEXT, INT, OUT INT);
+DROP PROCEDURE IF EXISTS sp_update_ticket_status(VARCHAR, VARCHAR);
+DROP PROCEDURE IF EXISTS sp_assign_ticket(VARCHAR, INT);
+DROP PROCEDURE IF EXISTS sp_create_ticket(VARCHAR, TEXT, VARCHAR, VARCHAR, INT, OUT VARCHAR);
+
+DROP TABLE IF EXISTS ticket_comments CASCADE;
+DROP TABLE IF EXISTS tickets CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,

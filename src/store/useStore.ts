@@ -29,9 +29,9 @@ export const users: User[] = [
 ];
 
 export const employees: Employee[] = [
-  { id: 1, name: "Ala'a" },
-  { id: 2, name: "Abdullah" },
-  { id: 3, name: "Mustafa" }
+  { id: 4, name: "Ala'a" },
+  { id: 5, name: "Abdullah" },
+  { id: 6, name: "Mustafa" }
 ];
 
 export const useStore = create<StoreState>()(

@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { LogOut, Ticket, PlusCircle, Inbox, User as UserIcon, Database } from 'lucide-react';
+import { LogOut, Ticket, PlusCircle, Inbox, User as UserIcon, Database, Menu } from 'lucide-react';
 
 export default function MainLayout() {
   const { role, currentUser, currentEmployee, logout, fetchTickets } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   React.useEffect(() => {
     fetchTickets();
@@ -38,15 +39,19 @@ export default function MainLayout() {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm z-10 relative">
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
+      <div 
+        className={`bg-white border-r border-gray-200 flex flex-col shadow-sm z-30 transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0
+          ${isSidebarOpen ? 'w-64' : 'w-0 border-r-0'}
+        `}
+      >
+        <div className="h-16 flex items-center px-6 border-b border-gray-200 w-64 flex-shrink-0">
           <div className="font-bold text-xl text-blue-600 flex items-center gap-2">
             <Ticket className="w-6 h-6" />
             SupportDesk
           </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto py-4">
+        <div className="flex-1 overflow-y-auto py-4 w-64">
           <div className="px-4 mb-6">
             <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               Menu
@@ -76,7 +81,7 @@ export default function MainLayout() {
           </div>
         </div>
         
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 w-64 flex-shrink-0">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
               {role === 'User' ? currentUser?.name.charAt(0) : currentEmployee?.name.charAt(0)}
@@ -99,9 +104,22 @@ export default function MainLayout() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto relative">
-        <main className="p-8 max-w-6xl mx-auto">
-          <Outlet />
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {/* Top Header */}
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center px-4 flex-shrink-0 z-20">
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 rounded-md hover:bg-gray-100 text-gray-600 transition-colors"
+            title={isSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </header>
+
+        <main className="flex-1 overflow-y-auto p-8">
+          <div className="max-w-6xl mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

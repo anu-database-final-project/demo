@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useStore } from './store/useStore';
+import { useStore, API_URL } from './store/useStore';
+import { Loader2 } from 'lucide-react';
 import MainLayout from './layouts/MainLayout';
 
 // Pages
@@ -15,6 +16,14 @@ import TicketDetailsPage from './pages/ticket/TicketDetailsPage';
 
 import SchemaViewPage from './pages/SchemaViewPage';
 
+const FullScreenLoader = () => (
+  <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
+    <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+    <h2 className="text-xl font-semibold text-slate-800">Connecting to Server...</h2>
+    <p className="text-slate-500 mt-2">Please wait while we establish a connection.</p>
+  </div>
+);
+
 function ProtectedRoute({ children, allowedRole }: { children: React.ReactNode, allowedRole: 'User' | 'Employee' }) {
   const { role } = useStore();
   
@@ -26,6 +35,35 @@ function ProtectedRoute({ children, allowedRole }: { children: React.ReactNode, 
 }
 
 function App() {
+  const [isServerReady, setIsServerReady] = useState(false);
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const checkHeartbeat = async () => {
+      try {
+        const response = await fetch(`${API_URL}/heartbeat`);
+        if (response.status === 200) {
+          setIsServerReady(true);
+        } else {
+          timeoutId = setTimeout(checkHeartbeat, 5000);
+        }
+      } catch (error) {
+        timeoutId = setTimeout(checkHeartbeat, 5000);
+      }
+    };
+
+    checkHeartbeat();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
+
+  if (!isServerReady) {
+    return <FullScreenLoader />;
+  }
+
   return (
     <BrowserRouter>
       <Routes>

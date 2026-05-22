@@ -20,6 +20,11 @@ const pool = new Pool({
 
 // Routes
 
+// 0. Heartbeat
+app.get('/api/heartbeat', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // 1. Get all tickets
 app.get('/api/tickets', async (req, res) => {
   try {
